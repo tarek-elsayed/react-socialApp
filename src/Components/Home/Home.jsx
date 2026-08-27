@@ -1,0 +1,59 @@
+import React, { useState } from "react";
+import { useEffect } from "react";
+import { getAllPosts } from "../../Api/getAllPosts.api";
+import CardPost from "../CardPost/CardPost";
+import Loader from "../Loader/Loader";
+
+export default function Home() {
+  const [allPostsList, setAllPostsList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [apiError, setApiError] = useState("");
+
+  const allPosts = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllPosts();
+      setAllPostsList(data);
+    } catch (error) {
+      setApiError(error.response.data.message);
+      console.log(error);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    console.log(allPostsList);
+    allPosts();
+  }, []);
+
+  if (isError) {
+    return (
+      <div className=" min-h-screen ">
+        <div
+          role="alert"
+          className="alert alert-error flex items-center justify-center"
+        >
+          <span>{apiError}</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <>
+      {/* {allPostsList.length} */}
+      <div className="container w-[80%] m-auto">
+        {isLoading ? (
+          <Loader />
+        ) : (
+          allPostsList?.map((post) => (
+            <div key={post.id} className="flex flex-col items-center">
+              <CardPost post={post} />
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
