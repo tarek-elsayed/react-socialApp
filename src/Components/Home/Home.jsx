@@ -3,30 +3,39 @@ import { useEffect } from "react";
 import { getAllPosts } from "../../Api/getAllPosts.api";
 import CardPost from "../CardPost/CardPost";
 import Loader from "../Loader/Loader";
+import { useQuery } from "@tanstack/react-query";
+import PostCreation from "../PostCreation/PostCreation";
 
 export default function Home() {
   const [allPostsList, setAllPostsList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [isError, setIsError] = useState(false);
   const [apiError, setApiError] = useState("");
 
-  const allPosts = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getAllPosts();
-      setAllPostsList(data);
-    } catch (error) {
-      setApiError(error.response.data.message);
-      console.log(error);
-      setIsError(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  useEffect(() => {
-    console.log(allPostsList);
-    allPosts();
-  }, []);
+  const { data, isError, isLoading, isFetching, error } = useQuery({
+    queryKey: ["allPosts"],
+    queryFn: getAllPosts,
+  });
+
+
+
+  // const allPosts = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const data = await getAllPosts();
+  //     setAllPostsList(data);
+  //   } catch (error) {
+  //     setApiError(error.response.data.message);
+  //     console.log(error);
+  //     setIsError(true);
+  //   } finally {
+  //     setIsLoading(false);
+  //   } 
+  // };
+  // useEffect(() => {
+  //   console.log(allPostsList);
+  //   allPosts();
+  // }, []);
 
   if (isError) {
     return (
@@ -42,12 +51,12 @@ export default function Home() {
   }
   return (
     <>
-      {/* {allPostsList.length} */}
+      <PostCreation />
       <div className="container w-[80%] m-auto">
         {isLoading ? (
           <Loader />
         ) : (
-          allPostsList?.map((post) => (
+          data?.map((post) => (
             <div key={post.id} className="flex flex-col items-center">
               <CardPost post={post} />
             </div>

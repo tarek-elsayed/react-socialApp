@@ -23,7 +23,7 @@ export default function PostDetails() {
   });
 
   const {
-    data: comments,
+    data: comments, 
     isError: comments1,
     isLoading: comments2,
     error: comments3,
