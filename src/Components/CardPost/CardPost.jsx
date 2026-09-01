@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import React from "react";
 import { FaBookmark, FaRegBookmark, FaRegCommentAlt } from "react-icons/fa";
-import { GrLike } from "react-icons/gr";
+import { GrLike, GrLikeFill } from "react-icons/gr";
 import { LuShare2 } from "react-icons/lu";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Comment from "../Comment/Comment";
@@ -23,6 +23,15 @@ export default function CardPost({ post }) {
         },
       },
     );
+  }
+  function checkLikedPost() {
+    post.likes.find((like) => {
+      if (like === post.user._id) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
   function bookMark() {
     return axios.put(
@@ -72,6 +81,7 @@ export default function CardPost({ post }) {
 
   return (
     <>
+      <h1>tarek </h1>
       <div className="">
         <div className="card bg-base-100 w-[80%] mx-auto shadow-sm border-4 border-gray-200 mt-2.5">
           <div className="flex gap-3 items-center justify-between">
@@ -123,7 +133,11 @@ export default function CardPost({ post }) {
               }}
               className="flex gap-2 items-center  transition-all p-3 rounded-md cursor-pointer"
             >
-              <GrLike />
+              {post.likes.length > 0 && checkLikedPost() ? (
+                <GrLikeFill className="text-blue-500 " />
+              ) : (
+                <GrLike />
+              )}
               <p>{post.likesCount}</p>
             </div>
 
