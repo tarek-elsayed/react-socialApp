@@ -53,6 +53,11 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
+                <Link to={'changepassword'} className="justify-between">
+                  Change Password
+                </Link>
+              </li>
+              <li>
                 <button onClick={()=>{
                   signOut()
                 }}>Logout</button>

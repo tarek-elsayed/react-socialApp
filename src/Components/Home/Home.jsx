@@ -8,8 +8,6 @@ import PostCreation from "../PostCreation/PostCreation";
 
 export default function Home() {
   const [allPostsList, setAllPostsList] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [isError, setIsError] = useState(false);
   const [apiError, setApiError] = useState("");
 
   const { data, isError, isLoading, isFetching, error } = useQuery({
@@ -17,25 +15,6 @@ export default function Home() {
     queryFn: getAllPosts,
   });
 
-
-
-  // const allPosts = async () => {
-  //   try {
-  //     setIsLoading(true);
-  //     const data = await getAllPosts();
-  //     setAllPostsList(data);
-  //   } catch (error) {
-  //     setApiError(error.response.data.message);
-  //     console.log(error);
-  //     setIsError(true);
-  //   } finally {
-  //     setIsLoading(false);
-  //   } 
-  // };
-  // useEffect(() => {
-  //   console.log(allPostsList);
-  //   allPosts();
-  // }, []);
 
   if (isError) {
     return (

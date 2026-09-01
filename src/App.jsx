@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PostDetails from "./Components/PostDetails/PostDetails";
 import { Toaster } from "react-hot-toast";
 import { useNetworkState } from "react-use";
+import ChangePassword from "./Components/ChangePassword/ChangePassword";
 
 function App() {
   const { online } = useNetworkState();
@@ -43,6 +44,14 @@ function App() {
           element: (
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "changepassword",
+          element: (
+            <ProtectedRoute>
+              <ChangePassword />
             </ProtectedRoute>
           ),
         },
