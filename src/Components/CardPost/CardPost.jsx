@@ -81,9 +81,9 @@ export default function CardPost({ post }) {
 
   return (
     <>
-      <h1>tarek </h1>
-      <div className="">
-        <div className="card bg-base-100 w-[80%] mx-auto shadow-sm border-4 border-gray-200 mt-2.5">
+
+      <div className="w-[80%]">
+        <div className="card bg-base-100 w-[80%] mx-auto shadow-sm border-4 border-gray-200 mt-5">
           <div className="flex gap-3 items-center justify-between">
             <div className="flex gap-3 items-center ">
               <div className="">
@@ -110,14 +110,6 @@ export default function CardPost({ post }) {
                 {post.body}
                 <div className="badge badge-secondary">{post.privacy}</div>
               </h2>
-              <p>
-                A card component has a figure, a body part, and inside body
-                there are title and actions parts
-              </p>
-              {/* <div className="card-actions justify-end">
-              <div className="badge badge-outline">Fashion</div>
-              <div className="badge badge-outline">Products</div>
-            </div> */}
               {post.image && (
                 <figure>
                   <img className="w-[60%] h-60" src={post.image} />

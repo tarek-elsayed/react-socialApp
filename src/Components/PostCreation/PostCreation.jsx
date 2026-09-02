@@ -12,18 +12,22 @@ export default function PostCreation() {
   const [isUploaded, setisUploaded] = useState(false);
   const { userToken } = useContext(UserContext);
 
-  const content = useRef(null);
+  const body = useRef(null);
   const image = useRef(null);
-  const myImg = useRef(null);
 
   function preparedData() {
     const formData = new FormData();
-    formData.append("body", content?.current.value);
-    formData.append("image", image?.current?.files[0]);
-    console.log(content?.current.value);
+    if(body?.current?.value){
+      formData.append("body", body?.current.value);
+    }
+    if(image?.current?.files[0]){
+      formData.append("image", image?.current?.files[0]);
+    }
+    console.log(body?.current.value);
     console.log(image?.current?.files[0]);
     console.log(formData);
-    return formData;
+    console.log(formData)
+    mutate(formData);
   }
   function handleImage(e) {
     const imgPath = URL.createObjectURL(e?.target?.files[0]);
@@ -32,11 +36,11 @@ export default function PostCreation() {
 
   const queryClient = useQueryClient();
 
-  function createPost() {
+  function createPost(formData) {
     console.log(userToken)
     return axios.post(
       `https://route-posts.routemisr.com/posts`,
-      preparedData(),
+      formData,
       {
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -53,13 +57,10 @@ export default function PostCreation() {
       });
       toast.success("Post Created");
 
-        content.current.value = "";
-        image.current.files[0] = "";
-        content.current.value = "";
+        body.current.value = "";
         image.current.value = "";
-        myImg.current.value = "";
         setisUploaded(false)
-      setisOpen(false);
+        setisOpen(false);
     },
     onError: () => {
       toast.error("Post Not Created");
@@ -95,11 +96,11 @@ export default function PostCreation() {
                 <Modal.Dialog className="sm:max-w-[90] bg-slate-500">
                   <Modal.CloseTrigger />
                   <Modal.Header>
-                    <Modal.Heading>Create Your Pos</Modal.Heading>
+                    <Modal.Heading>Create Your Post</Modal.Heading>
                   </Modal.Header>
                   <Modal.Body>
                     <textarea
-                      ref={content}
+                      ref={body}
                       className="w-full bg-slate-200 p-4 rounded-2xl"
                       placeholder="Create Post"
                     ></textarea>
@@ -114,6 +115,7 @@ export default function PostCreation() {
                         <IoIosCloseCircle
                           onClick={() => {
                             setisUploaded(false);
+                            image.current.value = "";
                           }}
                           className="absolute inset-2 text-3xl cursor-pointer"
                         />
@@ -132,13 +134,13 @@ export default function PostCreation() {
                     </label>
                     <Button
                       className=""
-                      slot="close"
+                      isDisabled={isPending}
                       onClick={() => {
-                        mutate();
+                        preparedData();
                         console.log("first");
                       }}
                     >
-                      Post
+                      {isPending ? "Posting..." : "Post"}
                     </Button>
                   </Modal.Footer>
                 </Modal.Dialog>

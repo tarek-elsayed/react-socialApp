@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   FaCamera,
   FaMapMarkerAlt,
@@ -8,8 +8,10 @@ import {
   FaGraduationCap,
   FaBirthdayCake,
   FaImage,
+  FaGenderless,
 } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
+import CardPost from "../CardPost/CardPost";
 
 const API_URL = "https://route-posts.routemisr.com";
 
@@ -29,26 +31,41 @@ function getImageUrl(image) {
   return `${API_URL}/${image.replace(/^\/+/, "")}`;
 }
 
-function getProfileData(response) {
-  const responseData = response?.data?.data || response?.data || {};
-
-  const user =
-    responseData.user ||
-    responseData.profile ||
-    responseData.userData ||
-    responseData;
-
-  const posts =
-    responseData.posts ||
-    responseData.userPosts ||
-    responseData.data?.posts ||
-    [];
-
-  return {
-    user,
-    posts: Array.isArray(posts) ? posts : [],
-  };
+async function getProfileData() {
+  return await axios.get(`${API_URL}/users/profile-data`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+    },
+  });
 }
+
+export default function Profile() {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["profileData"],
+    queryFn:getProfileData,
+    select: (data) => data?.data?.data.user,
+    
+    
+  });
+  console.log(data);
+  const user = data || {};
+  console.log(user);
+  
+
+
+const fullName =
+  user.name ||
+  user.username ||
+  `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+  "User";
+
+const profileImage = getImageUrl(
+  user.photo || user.avatar || user.profilePhoto || user.image,
+);
+
+const coverImage = getImageUrl(
+  user.coverPhoto || user.coverImage || user.cover,
+);
 
 function formatDate(date) {
   if (!date) return "";
@@ -59,20 +76,26 @@ function formatDate(date) {
     day: "numeric",
   });
 }
+  async function getUserPosts() {
+    debugger;
+    return await axios.get(`${API_URL}/users/${user.id}/posts`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+      },
+    });
+  }
 
-export default function Profile() {
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["profileData"],
-    queryFn: async () => {
-      const response = await axios.get(`${API_URL}/users/profile-data`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
-        },
-      });
-
-      return getProfileData(response);
-    },
+  const {
+    data: userPosts,
+    isPending: userPostsPending,
+    isError: userPostsError,
+  } = useQuery({
+    queryFn: getUserPosts,
+    select: (userPosts) => userPosts?.data?.data?.posts,
   });
+
+  console.log(userPosts);
+
 
   if (isPending) {
     return (
@@ -90,25 +113,8 @@ export default function Profile() {
     );
   }
 
-  const user = data?.user || {};
-  const posts = data?.posts || [];
-
-  const fullName =
-    user.name ||
-    user.username ||
-    `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-    "User";
-
-  const profileImage = getImageUrl(
-    user.photo || user.avatar || user.profilePhoto || user.image,
-  );
-
-  const coverImage = getImageUrl(
-    user.coverPhoto || user.coverImage || user.cover,
-  );
-
   return (
-    <main className="min-h-screen bg-gray-100 pb-10">
+    <main className="min-h-screen  pb-10">
       <section className="mx-auto max-w-6xl">
         {/* Cover and profile header */}
         <div className="overflow-hidden rounded-b-xl bg-white shadow-sm">
@@ -151,13 +157,33 @@ export default function Profile() {
                   {fullName}
                 </h1>
 
-                {user.username && (
-                  <p className="mt-1 text-gray-500">@{user.username}</p>
+                {user?.username && (
+                  <p className="mt-1 text-gray-500">@{user?.username}</p>
                 )}
 
-                <p className="mt-2 text-gray-500">
-                  {posts.length} {posts.length === 1 ? "post" : "posts"}
-                </p>
+                <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+                  <p className="mt-2 text-gray-500">
+                    {userPosts?.length} {userPosts?.length === 1 ? "post" : "posts"}
+                  </p>
+                  <p className="mt-2 text-gray-500">
+                    {user?.followersCount}{" "}
+                    {user?.followersCount.length === 1
+                      ? "follower"
+                      : "followers"}
+                  </p>
+                  <p className="mt-2 text-gray-500">
+                    {user?.followingCount}{" "}
+                    {user?.followingCount.length === 1
+                      ? "following"
+                      : "following"}
+                  </p>
+                  <p className="mt-2 text-gray-500">
+                    {user?.bookmarksCount}{" "}
+                    {user?.bookmarksCount.length === 1
+                      ? "bookmark"
+                      : "bookmarks"}
+                  </p>
+                </div>
               </div>
 
               <button
@@ -173,7 +199,7 @@ export default function Profile() {
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* About section */}
           <aside className="h-fit rounded-xl bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-xl font-bold text-gray-900">Intro</h2>
+            <h2 className="mb-4 text-xl font-bold text-gray-900">InFo</h2>
 
             {user.bio && (
               <p className="mb-5 text-center text-gray-600">{user.bio}</p>
@@ -224,6 +250,12 @@ export default function Profile() {
                   <span>{formatDate(user.dateOfBirth)}</span>
                 </div>
               )}
+              {user.gender && (
+                <div className="flex items-center gap-3">
+                  <FaGenderless className="text-gray-400" />
+                  <span>{user.gender.toUpperCase()}</span>
+                </div>
+              )}
             </div>
           </aside>
 
@@ -233,78 +265,13 @@ export default function Profile() {
               <h2 className="text-xl font-bold text-gray-900">Posts</h2>
             </div>
 
-            {posts.length === 0 ? (
+            {userPosts?.length === 0 ? (
               <div className="rounded-xl bg-white p-8 text-center text-gray-500 shadow-sm">
                 No posts yet.
               </div>
             ) : (
-              posts.map((post) => {
-                const postImage = getImageUrl(
-                  post.image || post.photo || post.images,
-                );
-
-                const postText =
-                  post.body || post.content || post.description || "";
-
-                return (
-                  <article
-                    key={post._id || post.id}
-                    className="rounded-xl bg-white p-5 shadow-sm"
-                  >
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="h-11 w-11 overflow-hidden rounded-full bg-gray-200">
-                        {profileImage ? (
-                          <img
-                            src={profileImage}
-                            alt={fullName}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center font-bold text-gray-500">
-                            {fullName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-
-                      <div>
-                        <h3 className="font-semibold text-gray-900">
-                          {fullName}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {formatDate(post.createdAt || post.created_at)}
-                        </p>
-                      </div>
-                    </div>
-
-                    {postText && (
-                      <p className="mb-4 whitespace-pre-wrap text-gray-800">
-                        {postText}
-                      </p>
-                    )}
-
-                    {postImage ? (
-                      <img
-                        src={postImage}
-                        alt="Post"
-                        className="max-h-[500px] w-full rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center rounded-lg bg-gray-100 py-12 text-gray-400">
-                        <FaImage className="mr-2" />
-                        No image
-                      </div>
-                    )}
-
-                    <div className="mt-4 flex gap-6 border-t pt-4 text-sm text-gray-500">
-                      <span>
-                        👍 {post.likesCount || post.likes?.length || 0}
-                      </span>
-                      <span>
-                        💬 {post.commentsCount || post.comments?.length || 0}
-                      </span>
-                    </div>
-                  </article>
-                );
+              userPosts?.map((post) => {
+                return <CardPost post={post} />;
               })
             )}
           </section>
