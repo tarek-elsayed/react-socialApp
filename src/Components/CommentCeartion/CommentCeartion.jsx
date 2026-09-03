@@ -33,7 +33,7 @@ export default function CommentCeartion({ id }) {
       //   queryKey:['getPostDetails']
       // })
       reset();
-      console.log("Done");
+      
     },
     onError: () => {
       console.log("error");

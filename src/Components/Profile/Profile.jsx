@@ -47,9 +47,9 @@ export default function Profile() {
     
     
   });
-  console.log(data);
+
   const user = data || {};
-  console.log(user);
+
   
 
 
@@ -77,7 +77,6 @@ function formatDate(date) {
   });
 }
   async function getUserPosts() {
-    debugger;
     return await axios.get(`${API_URL}/users/${user.id}/posts`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("userToken")}`,
@@ -90,11 +89,12 @@ function formatDate(date) {
     isPending: userPostsPending,
     isError: userPostsError,
   } = useQuery({
+    queryKey: ["userPosts", user.id],
     queryFn: getUserPosts,
     select: (userPosts) => userPosts?.data?.data?.posts,
   });
 
-  console.log(userPosts);
+
 
 
   if (isPending) {

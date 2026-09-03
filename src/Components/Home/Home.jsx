@@ -15,7 +15,6 @@ export default function Home() {
     queryFn: getAllPosts,
   });
 
-
   if (isError) {
     return (
       <div className=" min-h-screen ">

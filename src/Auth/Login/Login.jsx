@@ -65,6 +65,7 @@ export default function Login() {
       }).then((result) => {
         if (result.isConfirmed) {
           localStorage.setItem("userToken", data.data.token);
+          localStorage.setItem("userId", data.data.user._id);
           setUserToken(data.data.token);
           setIsLoading(false);
           navigate("/home");

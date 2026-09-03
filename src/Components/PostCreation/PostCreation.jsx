@@ -23,10 +23,6 @@ export default function PostCreation() {
     if(image?.current?.files[0]){
       formData.append("image", image?.current?.files[0]);
     }
-    console.log(body?.current.value);
-    console.log(image?.current?.files[0]);
-    console.log(formData);
-    console.log(formData)
     mutate(formData);
   }
   function handleImage(e) {
@@ -37,7 +33,7 @@ export default function PostCreation() {
   const queryClient = useQueryClient();
 
   function createPost(formData) {
-    console.log(userToken)
+    
     return axios.post(
       `https://route-posts.routemisr.com/posts`,
       formData,
@@ -137,7 +133,7 @@ export default function PostCreation() {
                       isDisabled={isPending}
                       onClick={() => {
                         preparedData();
-                        console.log("first");
+                       
                       }}
                     >
                       {isPending ? "Posting..." : "Post"}
