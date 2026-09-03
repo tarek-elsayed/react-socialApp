@@ -1,6 +1,10 @@
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { FaEye, FaEyeSlash, FaLock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function ChangePassword() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,11 +27,38 @@ export default function ChangePassword() {
       password: values.password,
       newPassword: values.newPassword,
     };
-
-    // سيتم إرسال هذا الـ object إلى API function
+    mutate(passwordData);
 
     reset();
   }
+  function changePassword(passwordData) {
+    return axios.patch(
+      "https://route-posts.routemisr.com/users/change-password",
+      passwordData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+      },
+    );
+  }
+const navigate = useNavigate();
+let newToken = '';
+  const { data, isPending, mutate } = useMutation({
+    mutationFn: changePassword,
+
+    onSuccess: (data) => {
+      newToken = data.data.data.token;
+      localStorage.setItem("userToken", newToken);
+     navigate('/login');
+      console.log("Password changed successfully");
+      toast.success("Password changed successfully");
+    },
+    onError: (error) => {
+      console.error("Error changing password:", error);
+      toast.error("Failed to change password. Please try again.");
+    },
+  });
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-8">
@@ -132,10 +163,10 @@ export default function ChangePassword() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting && isPending}
             className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Changing..." : "Change password"}
+            {isSubmitting && isPending ? "Changing..." : "Change password"}
           </button>
         </form>
       </section>
