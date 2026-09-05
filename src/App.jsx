@@ -74,7 +74,10 @@ function App() {
         { path: "*", element: <NotFound /> },
       ],
     },
-  ]);
+  ],
+{
+  basename: "/react-socialApp",
+});
 
   const query = new QueryClient();
 
@@ -82,7 +85,7 @@ function App() {
     <>
       {!online && (
         <div className="bg-slate-900/80 fixed inset-0 flex items-center justify-center">
-          <h1>Your Are Offline</h1>
+          <h1>Yo ur Are Offline</h1>
         </div>
       )}
       <QueryClientProvider client={query}>
