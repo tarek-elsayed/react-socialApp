@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
 import CardPost from "../CardPost/CardPost";
+import { Link } from "react-router-dom";
 
 const API_URL = "https://route-posts.routemisr.com";
 
@@ -177,12 +178,13 @@ function formatDate(date) {
                       ? "following"
                       : "following"}
                   </p>
-                  <p className="mt-2 text-gray-500">
+                  <Link
+                    to="/bookmarks"
+                    className="mt-2 text-gray-500 transition-colors hover:text-black hover:font-bold"
+                  >
                     {user?.bookmarksCount}{" "}
-                    {user?.bookmarksCount.length === 1
-                      ? "bookmark"
-                      : "bookmarks"}
-                  </p>
+                    {user?.bookmarksCount === 1 ? "bookmark" : "bookmarks"}
+                  </Link>
                 </div>
               </div>
 

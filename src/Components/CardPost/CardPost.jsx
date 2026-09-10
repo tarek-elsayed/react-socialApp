@@ -109,6 +109,9 @@ console.log(post)
       queryClient.invalidateQueries({
         queryKey: ["getPostDetails"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["bookmarkedPosts"],
+      });
     },
     onError: () => {
       toast.error("Post Not BookMarked");

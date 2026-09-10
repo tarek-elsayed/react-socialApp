@@ -15,6 +15,7 @@ import PostDetails from "./Components/PostDetails/PostDetails";
 import { Toaster } from "react-hot-toast";
 import { useNetworkState } from "react-use";
 import ChangePassword from "./Components/ChangePassword/ChangePassword";
+import Bookmarks from "./Components/Bookmarks/Bookmarks";
 
 function App() {
   const { online } = useNetworkState();
@@ -52,6 +53,14 @@ function App() {
           element: (
             <ProtectedRoute>
               <ChangePassword />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: "bookmarks",
+          element: (
+            <ProtectedRoute>
+              <Bookmarks />
             </ProtectedRoute>
           ),
         },

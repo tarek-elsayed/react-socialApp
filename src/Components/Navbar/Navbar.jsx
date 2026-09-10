@@ -53,6 +53,11 @@ export default function Navbar() {
                 </Link>
               </li>
               <li>
+                <Link to={'bookmarks'} className="justify-between">
+                  Saved Posts
+                </Link>
+              </li>
+              <li>
                 <Link to={'changepassword'} className="justify-between">
                   Change Password
                 </Link>
