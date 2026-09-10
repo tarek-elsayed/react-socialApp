@@ -9,7 +9,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { VscLoadingCompact } from "react-icons/vsc";
 export default function CommentCeartion({ id }) {
   function createComment() {
-    debugger
     axios.post(
       `https://route-posts.routemisr.com/posts/${id}/comments`,
       formData,
@@ -54,7 +53,6 @@ export default function CommentCeartion({ id }) {
 
   const formData = new FormData();
   function handleComment(values) {
-    debugger
     if (values.content) {
       formData.append("content", values.content);
     }

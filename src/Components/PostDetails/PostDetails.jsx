@@ -38,7 +38,6 @@ export default function PostDetails() {
   
 
    function likePost() {
-    debugger
       return axios.put(
         `https://route-posts.routemisr.com/posts/${id}/like`,
         {},

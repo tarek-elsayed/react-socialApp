@@ -201,7 +201,6 @@ console.log(post)
   const { register, handleSubmit, reset, watch } = form;
   const commentValues = watch("content");
   function createComment() {
-    debugger;
     axios.post(
       `https://route-posts.routemisr.com/posts/${post.id}/comments`,
       formData,
@@ -214,7 +213,6 @@ console.log(post)
   }
   const formData = new FormData();
   function handleComment(values) {
-    debugger;
     if (values.content) {
       formData.append("content", values.content);
     }
@@ -454,10 +452,10 @@ console.log(post)
                     <InputGroup.Suffix>
                       <button
                         type="submit"
-                        disabled={!commentValues || isPending}
-                        className={isPending ? "cursor-not-allowed" : ""}
+                        disabled={!commentValues || pendingComment}
+                        className={pendingComment ? "cursor-not-allowed" : ""}
                       >
-                        {isPending ? (
+                        {pendingComment ? (
                           <VscLoadingCompact className="animate-spin" />
                         ) : (
                           <IoSend
