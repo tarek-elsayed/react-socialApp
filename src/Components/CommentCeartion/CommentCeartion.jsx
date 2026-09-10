@@ -27,11 +27,11 @@ export default function CommentCeartion({ id }) {
     mutationFn: createComment,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["getPostComments",'getPostDetails'],
+        queryKey: ["getPostComments"],
       });
-      // queryClient.invalidateQueries({
-      //   queryKey:['getPostDetails']
-      // })
+      queryClient.invalidateQueries({
+        queryKey:['getPostDetails']
+      })
       reset();
       
     },
@@ -54,7 +54,7 @@ export default function CommentCeartion({ id }) {
 
   const formData = new FormData();
   function handleComment(values) {
-    if (values.content && values.image[0]) return;
+    debugger
     if (values.content) {
       formData.append("content", values.content);
     }

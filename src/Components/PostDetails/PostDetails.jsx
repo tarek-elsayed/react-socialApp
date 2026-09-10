@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useParams } from "react-router-dom";
 import { getDetails } from "../../Api/getPostDetails.api";
@@ -11,10 +11,12 @@ import Loader from "../Loader/Loader";
 import { getComments } from "../../Api/getPostComments.api";
 import Comment from "../Comment/Comment";
 import CommentCeartion from "../CommentCeartion/CommentCeartion";
+import axios from "axios";
 
 export default function PostDetails() {
   const { id } = useParams();
   dayjs.extend(relativeTime);
+  const userToken = localStorage.getItem("userToken");
 
   const { data, isError, isLoading, error, isFetching } = useQuery({
     queryKey: ["getPostDetails", id],
@@ -33,7 +35,31 @@ export default function PostDetails() {
     queryFn: () => getComments({ id }),
     select: (comments) => comments?.data?.data?.comments,
   });
+  
 
+   function likePost() {
+    debugger
+      return axios.put(
+        `https://route-posts.routemisr.com/posts/${id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        },
+      );
+    }
+    const { data:liked, isPending:likedPending, mutate:mutateLiked } = useMutation({
+    mutationFn: likePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPosts"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["getPostDetails"],
+      });
+    },
+  });
   if (isLoading) return <Loader />;
   return (
     <>
@@ -64,7 +90,9 @@ export default function PostDetails() {
         </div>
 
         <div className=" flex flex-wrap items-center justify-between">
-          <div className="flex gap-2 items-center hover:bg-gray-100 transition-all p-3 rounded-md cursor-pointer">
+          <div onClick={()=>{
+              mutateLiked();
+            }} className="flex gap-2 items-center hover:transition-all p-3 rounded-md cursor-pointer">
             <GrLike />
             <p>{data?.likesCount}</p>
           </div>
@@ -82,7 +110,7 @@ export default function PostDetails() {
         <CommentCeartion id={data?.id} /> 
 
         {comments?.map((comment) => (
-          <Comment key={comment?._id} comment={comment} />
+          <Comment key={comment?._id} comment={comment} image={comment.image} />
         ))}
 
         {/* {data?.topComment && <Comment comment={data?.topComment} />} */}

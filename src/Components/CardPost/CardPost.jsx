@@ -15,17 +15,31 @@ import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { Button, Dropdown, Label, Avatar, Modal } from "@heroui/react";
+import {
+  Button,
+  Dropdown,
+  Label,
+  Avatar,
+  Modal,
+  TextField,
+  InputGroup,
+} from "@heroui/react";
 
 import { MdEdit, MdOutlineDeleteForever } from "react-icons/md";
 import { IoIosCloseCircle } from "react-icons/io";
+import { useForm } from "react-hook-form";
+import { IoSend } from "react-icons/io5";
+import { VscLoadingCompact } from "react-icons/vsc";
 
 export default function CardPost({ post }) {
   const userId = localStorage.getItem("userId");
   const userToken = localStorage.getItem("userToken");
   const [isOpen, setisOpen] = useState(false);
+  const [isComment, setisComment] = useState(false);
 
   dayjs.extend(relativeTime);
+
+console.log(post)
 
 
   function likePost() {
@@ -68,10 +82,9 @@ export default function CardPost({ post }) {
   }
 
   const queryClient = useQueryClient();
-  const { data, isPending, mutate } = {
+  const { data, isPending, mutate } = useMutation({
     mutationFn: likePost,
     onSuccess: () => {
-      
       queryClient.invalidateQueries({
         queryKey: ["allPosts"],
       });
@@ -79,7 +92,7 @@ export default function CardPost({ post }) {
         queryKey: ["getPostDetails"],
       });
     },
-  };
+  });
 
   const {
     data: bo,
@@ -132,7 +145,7 @@ export default function CardPost({ post }) {
 
   function EditPost() {
     setisOpen(true);
- 
+
     setbody(post.body || "");
     setimage(post.image || null);
     if (post.image) {
@@ -149,7 +162,7 @@ export default function CardPost({ post }) {
         },
       },
     );
-  };
+  }
   const {
     data: editPostData,
     isPending: editPending,
@@ -161,15 +174,13 @@ export default function CardPost({ post }) {
       queryClient.invalidateQueries({
         queryKey: ["allPosts"],
       });
-      setisUploaded(false)
-        setisOpen(false);
+      setisUploaded(false);
+      setisOpen(false);
     },
     onError: () => {
       toast.error("Post Not Updated");
     },
   });
-
- 
 
   function preparedData() {
     const formData = new FormData();
@@ -181,6 +192,63 @@ export default function CardPost({ post }) {
     }
     editPostMutate(formData);
   }
+  const form = useForm({
+    defaultValues: {
+      content: "",
+      image: "",
+    },
+  });
+  const { register, handleSubmit, reset, watch } = form;
+  const commentValues = watch("content");
+  function createComment() {
+    debugger;
+    axios.post(
+      `https://route-posts.routemisr.com/posts/${post.id}/comments`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("userToken")}`,
+        },
+      },
+    );
+  }
+  const formData = new FormData();
+  function handleComment(values) {
+    debugger;
+    if (values.content) {
+      formData.append("content", values.content);
+    }
+    if (values.image) {
+      formData.append("image", values.image[0]);
+    }
+    mutateComment();
+  }
+
+  const {
+    data: comment,
+    isPending: pendingComment,
+    mutate: mutateComment,
+  } = useMutation({
+    mutationFn: createComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["getPostComments"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["allPosts"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["getPostDetails"],
+      });
+      reset();
+    },
+    onError: () => {
+      console.log("error");
+    },
+    onSettled: () => {
+      console.log("ok");
+    },
+  });
 
   return (
     <>
@@ -205,9 +273,7 @@ export default function CardPost({ post }) {
                 <BsThreeDotsVertical />
               </Button>
               <Dropdown.Popover>
-                <Dropdown.Menu
-                  
-                >
+                <Dropdown.Menu>
                   <Dropdown.Item id="bookmark" textValue="New file">
                     <div
                       onClick={() => {
@@ -222,9 +288,7 @@ export default function CardPost({ post }) {
                 </Dropdown.Menu>
 
                 {userId === post.user._id && (
-                  <Dropdown.Menu
-                    
-                  >
+                  <Dropdown.Menu>
                     <Dropdown.Item
                       onClick={() => EditPost()}
                       id="editPost"
@@ -239,9 +303,7 @@ export default function CardPost({ post }) {
                 )}
 
                 {userId === post.user._id && (
-                  <Dropdown.Menu
-                    
-                  >
+                  <Dropdown.Menu>
                     <Dropdown.Item id="deletePost" textValue="Delete Post">
                       <div
                         className=" w-full flex items-center justify-between"
@@ -288,7 +350,12 @@ export default function CardPost({ post }) {
               <p>{post.likesCount}</p>
             </div>
 
-            <div className="flex gap-2 items-center  transition-all p-3 rounded-md cursor-pointer">
+            <div
+              className="flex gap-2 items-center  transition-all p-3 rounded-md cursor-pointer"
+              onClick={() => {
+                setisComment(true);
+              }}
+            >
               <FaRegCommentAlt />
               <p>{post.commentsCount}</p>
             </div>
@@ -341,7 +408,9 @@ export default function CardPost({ post }) {
                           hidden
                           onChange={(e) => {
                             setimage(e.target.files[0]);
-                            setisUploaded(URL.createObjectURL(e.target.files[0]));
+                            setisUploaded(
+                              URL.createObjectURL(e.target.files[0]),
+                            );
                           }}
                         />
                       </label>
@@ -362,6 +431,50 @@ export default function CardPost({ post }) {
           </div>
 
           {post.topComment && <Comment comment={post.topComment} />}
+
+          {isComment && (
+            <div className="flex gap-3 items-center border-2 border-gray-200 rounded-md p-2">
+              <form className="w-full" onSubmit={handleSubmit(handleComment)}>
+                <TextField className="w-full " name="text" aria-label="comment">
+                  <InputGroup>
+                    <InputGroup.Input
+                      {...register("content")}
+                      className="w-full"
+                      placeholder="Write a comment"
+                    />
+                    <label htmlFor="image">
+                      <FaImage className="size-4 top text-gray-600 mx-2 cursor-pointer" />
+                    </label>
+                    <input
+                      {...register("image")}
+                      id="image"
+                      type="file"
+                      hidden
+                    />
+                    <InputGroup.Suffix>
+                      <button
+                        type="submit"
+                        disabled={!commentValues || isPending}
+                        className={isPending ? "cursor-not-allowed" : ""}
+                      >
+                        {isPending ? (
+                          <VscLoadingCompact className="animate-spin" />
+                        ) : (
+                          <IoSend
+                            className={
+                              !commentValues
+                                ? "text-muted size-4 cursor-pointer"
+                                : "size-4 text-blue-500 cursor-pointer"
+                            }
+                          />
+                        )}
+                      </button>
+                    </InputGroup.Suffix>
+                  </InputGroup>
+                </TextField>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -89,7 +89,7 @@ export default function PostCreation() {
             {/* <Button variant="secondary">Open Modal</Button> */}
             <Modal.Backdrop>
               <Modal.Container>
-                <Modal.Dialog className="sm:max-w-[90] bg-slate-500">
+                <Modal.Dialog className="sm:max-w-[90%] md:max-w-[60%] lg:max-w-[40%] bg-slate-500">
                   <Modal.CloseTrigger />
                   <Modal.Header>
                     <Modal.Heading>Create Your Post</Modal.Heading>
